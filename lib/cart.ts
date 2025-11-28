@@ -1,37 +1,28 @@
-import { cookies } from "next/headers"
-
 export interface CartItem {
   productId: number
   quantity: number
 }
 
-export async function getCart(): Promise<CartItem[]> {
-  const cookieStore = await cookies()
-  const cartCookie = cookieStore.get("cart")
-
-  if (!cartCookie) {
+// Helper function that parses cart from a cookie string
+export function getCartFromCookie(cookieValue: string | undefined): CartItem[] {
+  if (!cookieValue) {
     return []
   }
 
   try {
-    return JSON.parse(cartCookie.value)
+    return JSON.parse(cookieValue)
   } catch {
     return []
   }
 }
 
-export async function setCart(cart: CartItem[]) {
-  const cookieStore = await cookies()
-  cookieStore.set("cart", JSON.stringify(cart), {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
-  })
+// Helper function to serialize cart for cookie storage
+export function serializeCart(cart: CartItem[]): string {
+  return JSON.stringify(cart)
 }
 
-export async function addToCart(productId: number, quantity = 1) {
-  const cart = await getCart()
+// Helper function to add item to cart array
+export function addItemToCart(cart: CartItem[], productId: number, quantity = 1): CartItem[] {
   const existingItem = cart.find((item) => item.productId === productId)
 
   if (existingItem) {
@@ -40,28 +31,24 @@ export async function addToCart(productId: number, quantity = 1) {
     cart.push({ productId, quantity })
   }
 
-  await setCart(cart)
+  return cart
 }
 
-export async function updateCartItem(productId: number, quantity: number) {
-  const cart = await getCart()
-  const item = cart.find((item) => item.productId === productId)
-
-  if (item) {
-    if (quantity <= 0) {
-      await setCart(cart.filter((item) => item.productId !== productId))
-    } else {
-      item.quantity = quantity
-      await setCart(cart)
-    }
+// Helper function to update cart item quantity
+export function updateCartItemQuantity(cart: CartItem[], productId: number, quantity: number): CartItem[] {
+  if (quantity <= 0) {
+    return cart.filter((item) => item.productId !== productId)
   }
+
+  const item = cart.find((item) => item.productId === productId)
+  if (item) {
+    item.quantity = quantity
+  }
+
+  return cart
 }
 
-export async function clearCart() {
-  const cookieStore = await cookies()
-  cookieStore.delete("cart")
-}
-
+// Generate order ID from cart items
 export function generateOrderId(cart: CartItem[]): string {
   return "Order-" + cart.map((item) => `${item.productId}:${item.quantity}`).join("_")
 }

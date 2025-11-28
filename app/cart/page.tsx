@@ -1,9 +1,10 @@
 import { getUser } from "@/lib/auth"
-import { getCart } from "@/lib/cart"
+import { getCartFromCookie } from "@/lib/cart"
 import { Header } from "@/components/header"
 import { CartView } from "@/components/cart-view"
 import { redirect } from "next/navigation"
 import products from "@/data/products.json"
+import { cookies } from "next/headers"
 
 export default async function CartPage() {
   const user = await getUser()
@@ -12,7 +13,9 @@ export default async function CartPage() {
     redirect("/login")
   }
 
-  const cart = await getCart()
+  const cookieStore = await cookies()
+  const cartCookie = cookieStore.get("cart")
+  const cart = getCartFromCookie(cartCookie?.value)
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0)
 
   const cartItems = cart

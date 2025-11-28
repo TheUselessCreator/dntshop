@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { addToCart } from "@/lib/cart"
+import { getCartFromCookie, addItemToCart, serializeCart } from "@/lib/cart"
+import { cookies } from "next/headers"
 
 export async function POST(request: NextRequest) {
   try {
@@ -9,7 +10,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid product or quantity" }, { status: 400 })
     }
 
-    await addToCart(productId, quantity)
+    const cookieStore = await cookies()
+    const cartCookie = cookieStore.get("cart")
+    const cart = getCartFromCookie(cartCookie?.value)
+
+    const updatedCart = addItemToCart(cart, productId, quantity)
+
+    cookieStore.set("cart", serializeCart(updatedCart), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
 
     return NextResponse.json({ success: true })
   } catch (error) {

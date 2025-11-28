@@ -1,7 +1,8 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { clearCart } from "@/lib/cart"
+import { cookies } from "next/headers"
 
 export async function POST(request: NextRequest) {
-  await clearCart()
+  const cookieStore = await cookies()
+  cookieStore.delete("cart")
   return NextResponse.json({ success: true })
 }

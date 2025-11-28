@@ -1,1 +1,14 @@
-[]
+[
+  {
+    "ProductName": "1m donut money",
+    "ProductPrice": 0.09,
+    "ProductImage": "public/images/donut-money.png",
+    "ProductID": 1
+  },
+  {
+    "ProductName": "1 skeleton",
+    "ProductPrice": 0.06,
+    "ProductImage": "public/images/skele.png",
+    "ProductID": 2
+  }
+]

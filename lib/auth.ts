@@ -17,7 +17,8 @@ export async function getUser(): Promise<User | null> {
   }
 
   try {
-    return JSON.parse(userCookie.value)
+    const decoded = Buffer.from(userCookie.value, "base64").toString("utf-8")
+    return JSON.parse(decoded)
   } catch {
     return null
   }
@@ -25,7 +26,8 @@ export async function getUser(): Promise<User | null> {
 
 export async function setUser(user: User) {
   const cookieStore = await cookies()
-  cookieStore.set("user", JSON.stringify(user), {
+  const encoded = Buffer.from(JSON.stringify(user)).toString("base64")
+  cookieStore.set("user", encoded, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",

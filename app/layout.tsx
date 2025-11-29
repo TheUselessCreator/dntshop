@@ -9,8 +9,8 @@ const _geist = Geist({ subsets: ["latin"] })
 const _geistMono = Geist_Mono({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "DonutAce - Premium Donut Shop",
-  description: "Your premium destination for the finest donuts",
+  title: "DonutSMP - Premium Shop",
+  description: "Your premium destination for DonutSMP items",
   generator: "v0.app",
   icons: {
     icon: [

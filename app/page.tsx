@@ -23,7 +23,7 @@ export default async function HomePage() {
               DonutAce
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance">
-              Your premium destination for the finest donuts
+              Your premium shop for DonutSMP items
             </p>
           </div>
 

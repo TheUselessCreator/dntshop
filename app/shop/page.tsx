@@ -25,9 +25,9 @@ export default async function ShopPage() {
       <main className="container mx-auto px-4 py-12">
         <div className="mb-12 text-center max-w-2xl mx-auto">
           <h1 className="text-5xl font-bold mb-3 text-balance bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Shop Our Collection
+            Shop DonutSMP
           </h1>
-          <p className="text-muted-foreground text-lg">Browse our premium selection of donuts</p>
+          <p className="text-muted-foreground text-lg">Browse our premium selection</p>
         </div>
 
         {products.length === 0 ? (

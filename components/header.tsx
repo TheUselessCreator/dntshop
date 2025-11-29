@@ -24,13 +24,33 @@ export function Header({ user, cartCount }: HeaderProps) {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center space-x-2">
-          <span className="text-xl font-bold">DonutAce</span>
+          <span className="text-xl font-bold">DonutSMP</span>
         </Link>
 
         <div className="flex items-center gap-6">
           <Link href="/shop" className="text-sm font-medium hover:text-primary transition-colors">
             Shop
           </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="text-sm font-medium">
+                Partners
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start">
+              <DropdownMenuItem asChild>
+                <a
+                  href="https://donutdupe.zone.id"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="cursor-pointer"
+                >
+                  DonutDupe
+                </a>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           <div className="flex items-center gap-2">
             {user && (

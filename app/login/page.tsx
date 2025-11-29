@@ -6,11 +6,11 @@ export default async function LoginPage() {
   const user = await getUser()
 
   if (user) {
-    redirect("/")
+    redirect("/shop")
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-background">
       <LoginForm />
     </div>
   )

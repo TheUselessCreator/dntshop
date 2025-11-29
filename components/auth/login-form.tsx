@@ -2,8 +2,14 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { useSearchParams } from "next/navigation"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
 
 export function LoginForm() {
+  const searchParams = useSearchParams()
+  const error = searchParams.get("error")
+
   const handleDiscordLogin = () => {
     window.location.href = "/api/auth/discord"
   }
@@ -14,7 +20,17 @@ export function LoginForm() {
         <CardTitle>Sign In to DonutAce</CardTitle>
         <CardDescription>Sign in with Discord to start shopping</CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              {error === "auth_failed"
+                ? "Authentication failed. Please try again."
+                : "An error occurred. Please try again."}
+            </AlertDescription>
+          </Alert>
+        )}
         <Button
           type="button"
           variant="default"

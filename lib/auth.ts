@@ -5,20 +5,19 @@ export interface User {
   email: string
   name: string
   avatar?: string
-  provider: "discord" | "email"
+  provider: "discord"
 }
 
 export async function getUser(): Promise<User | null> {
   const cookieStore = await cookies()
-  const userCookie = cookieStore.get("user")
+  const sessionCookie = cookieStore.get("session")
 
-  if (!userCookie) {
+  if (!sessionCookie) {
     return null
   }
 
   try {
-    const decoded = Buffer.from(userCookie.value, "base64").toString("utf-8")
-    return JSON.parse(decoded)
+    return JSON.parse(sessionCookie.value) as User
   } catch {
     return null
   }
@@ -26,16 +25,16 @@ export async function getUser(): Promise<User | null> {
 
 export async function setUser(user: User) {
   const cookieStore = await cookies()
-  const encoded = Buffer.from(JSON.stringify(user)).toString("base64")
-  cookieStore.set("user", encoded, {
+  cookieStore.set("session", JSON.stringify(user), {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: "/",
   })
 }
 
 export async function clearUser() {
   const cookieStore = await cookies()
-  cookieStore.delete("user")
+  cookieStore.delete("session")
 }

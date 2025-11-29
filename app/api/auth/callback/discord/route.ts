@@ -2,18 +2,12 @@ import { type NextRequest, NextResponse } from "next/server"
 import { setUser } from "@/lib/auth"
 
 export async function GET(request: NextRequest) {
-  console.log("[v0] Discord callback hit:", request.url)
-  console.log("[v0] Request method:", request.method)
-  console.log("[v0] Headers:", Object.fromEntries(request.headers.entries()))
-
   const searchParams = request.nextUrl.searchParams
   const code = searchParams.get("code")
+  const error = searchParams.get("error")
 
-  console.log("[v0] Code received:", code ? "yes" : "no")
-
-  if (!code) {
-    console.log("[v0] No code in callback, redirecting to login")
-    return NextResponse.redirect(new URL("/login?error=no_code", request.url))
+  if (error || !code) {
+    return NextResponse.redirect(new URL("/login?error=auth_failed", request.url))
   }
 
   try {
@@ -21,72 +15,62 @@ export async function GET(request: NextRequest) {
     const clientSecret = process.env.DISCORD_CLIENT_SECRET
     const redirectUri = process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI
 
-    console.log("[v0] Discord config check:", {
-      clientId: clientId ? "set" : "missing",
-      clientSecret: clientSecret ? "set" : "missing",
-      redirectUri: redirectUri ? redirectUri : "missing",
-    })
-
     if (!clientId || !clientSecret || !redirectUri) {
       throw new Error("Discord OAuth not configured")
     }
 
-    // Exchange code for access token
-    console.log("[v0] Exchanging code for token...")
+    // Exchange code for token
+    const tokenParams = new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: "authorization_code",
+      code: code,
+      redirect_uri: redirectUri,
+    })
+
     const tokenResponse = await fetch("https://discord.com/api/oauth2/token", {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
-      body: new URLSearchParams({
-        client_id: clientId,
-        client_secret: clientSecret,
-        grant_type: "authorization_code",
-        code,
-        redirect_uri: redirectUri,
-      }),
+      body: tokenParams.toString(),
     })
 
     if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.text()
-      console.error("[v0] Token exchange failed:", tokenResponse.status, errorData)
       throw new Error("Failed to exchange code for token")
     }
 
-    const { access_token } = await tokenResponse.json()
-    console.log("[v0] Token received successfully")
+    const tokenData = await tokenResponse.json()
 
     // Get user info
-    console.log("[v0] Fetching user info...")
     const userResponse = await fetch("https://discord.com/api/users/@me", {
       headers: {
-        Authorization: `Bearer ${access_token}`,
+        Authorization: `Bearer ${tokenData.access_token}`,
       },
     })
 
     if (!userResponse.ok) {
-      console.error("[v0] User info fetch failed:", userResponse.status)
       throw new Error("Failed to get user info")
     }
 
     const discordUser = await userResponse.json()
-    console.log("[v0] User info received:", discordUser.username)
 
-    // Set user session
-    await setUser({
+    // Create user session
+    const user = {
       id: discordUser.id,
-      email: discordUser.email || `${discordUser.username}@discord.user`,
+      email: discordUser.email || `${discordUser.username}@discord`,
       name: discordUser.global_name || discordUser.username,
       avatar: discordUser.avatar
         ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.png`
         : undefined,
-      provider: "discord",
-    })
+      provider: "discord" as const,
+    }
 
-    console.log("[v0] User session set, redirecting to home")
-    return NextResponse.redirect(new URL("/", request.url))
+    await setUser(user)
+
+    return NextResponse.redirect(new URL("/shop", request.url))
   } catch (error) {
-    console.error("[v0] Discord OAuth error:", error)
+    console.error("Discord OAuth error:", error)
     return NextResponse.redirect(new URL("/login?error=auth_failed", request.url))
   }
 }

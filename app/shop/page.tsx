@@ -22,9 +22,11 @@ export default async function ShopPage() {
     <div className="min-h-screen bg-background">
       <Header user={user} cartCount={cartCount} />
 
-      <main className="container px-4 py-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-balance">Shop Our Collection</h1>
+      <main className="container mx-auto px-4 py-12">
+        <div className="mb-12 text-center max-w-2xl mx-auto">
+          <h1 className="text-5xl font-bold mb-3 text-balance bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
+            Shop Our Collection
+          </h1>
           <p className="text-muted-foreground text-lg">Browse our premium selection of donuts</p>
         </div>
 
@@ -34,7 +36,7 @@ export default async function ShopPage() {
             <p className="text-sm text-muted-foreground mt-2">Check back soon for new items!</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products.map((product) => (
               <ProductCard key={product.ProductID} product={product} />
             ))}
